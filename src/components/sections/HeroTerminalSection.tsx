@@ -20,6 +20,7 @@ function SimulatedTerminal({ profile, projects, skills }: HeroTerminalSectionPro
   const [currentPath] = useState('/home/suman/portfolio');
   const [isAutoStarted, setIsAutoStarted] = useState(false);
   const terminalContentRef = useRef<HTMLDivElement>(null);
+  const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
   
   const theme = useTheme();
   const { mode } = usePortfolioTheme();
@@ -52,22 +53,101 @@ function SimulatedTerminal({ profile, projects, skills }: HeroTerminalSectionPro
     }
   }, [output]);
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
+    };
+  }, []);
+
   // Auto-start terminal with welcome sequence
   useEffect(() => {
-    if (!isAutoStarted) {
+    if (!isAutoStarted && output.length === 0) {
+      console.log('Starting terminal auto-sequence...');
+      
+      const createIntroSection = () => {
+        const name = profile?.name || 'Suman Raj Sharma';
+        const title = 'Full-Stack Developer & Creative Problem Solver';
+        const bio = profile?.shortBio || 'Developer skilled in backend engineering, cloud infrastructure, and automation.';
+        
+        return [
+          '='.repeat(72),
+          '                    DEVELOPER PORTFOLIO TERMINAL',
+          '='.repeat(72),
+          '',
+          `👨‍💻 ${name}`,
+          `🎯 ${title}`,
+          '',
+          '📍 SYSTEM INFO',
+          '   OS: macOS Sonoma 14.5 (Portfolio Terminal v2.0)',
+          '   Shell: zsh 5.9 (x86_64-apple-darwin23.0)',
+          '   Path: /home/suman/portfolio',
+          '',
+          '🚀 ABOUT',
+          `   ${bio}`,
+          '',
+          '📞 CONTACT',
+          `   📧 ${profile?.socials?.email || 'contact@sumanrajsharma.dev'}`,
+          `   🔗 ${profile?.socials?.linkedin || 'linkedin.com/in/sumanrajsharma'}`,
+          `   🐙 ${profile?.socials?.github || 'github.com/sumanxcodes'}`,
+          '',
+          '💡 Type "help" for available commands',
+          '='.repeat(72),
+          ''
+        ];
+      };
+
+      const introLines = createIntroSection();
       const welcomeSequence = [
-        '$ Welcome to Suman\'s Portfolio Terminal! 🚀',
-        '$ Initializing developer environment...',
-        '$ Loading portfolio data...',
-        '$ Type "help" to see available commands.',
-        '$ Try: whoami, skills, projects, contact',
+        ...introLines,
+        '$ whoami',
+        `${profile?.name || 'Suman Raj Sharma'} - Full-Stack Developer & Creative Problem Solver`,
+        '',
+        '$ ls skills/',
+        'Frontend/  Backend/  Tools/  Languages/',
+        '',
+        '$ git status',
+        'On branch main',
+        'Working on exciting projects...',
+        'nothing to commit, working tree clean',
+        '',
+        '$ echo "Ready to collaborate! Type \'help\' for available commands."',
+        'Ready to collaborate! Type \'help\' for available commands.',
         ''
       ];
       
-      setOutput(welcomeSequence);
-      setIsAutoStarted(true);
+      console.log('Starting terminal sequence with', welcomeSequence.length, 'lines');
+      
+      let index = 0;
+      const typeSequence = () => {
+        if (index < welcomeSequence.length) {
+          const line = welcomeSequence[index];
+          console.log('Adding line', index, ':', line);
+          setOutput(prev => [...prev, line]);
+          index++;
+          
+          // Variable timing for smoother animation
+          let delay = 150; // Default fast timing
+          if (index <= introLines.length) {
+            // Faster for intro box lines
+            delay = line.startsWith('╔') || line.startsWith('╚') ? 100 : 80;
+          } else if (line.startsWith('$')) {
+            // Slightly slower for commands
+            delay = 300;
+          }
+          
+          const timeout = setTimeout(typeSequence, delay);
+          timeoutRefs.current.push(timeout);
+        } else {
+          console.log('Terminal sequence complete');
+          setIsAutoStarted(true);
+        }
+      };
+      
+      const initialTimeout = setTimeout(typeSequence, 300);
+      timeoutRefs.current.push(initialTimeout);
     }
-  }, [isAutoStarted]);
+  }, [isAutoStarted, output.length, profile]); // Include profile so it updates when data loads
 
   const commands: Record<string, () => string> = {
     help: () => `Available commands:
@@ -236,6 +316,16 @@ Design Philosophy: Terminal-inspired green aesthetic.`,
     }
   };
 
+  // macOS-style colors for traffic lights
+  const macOSColors = {
+    red: '#FF5F57',
+    yellow: '#FFBD2E',
+    green: '#28CA42',
+    redHover: '#FF4A47',
+    yellowHover: '#FFB01E',
+    greenHover: '#1FB832',
+  };
+
   return (
     <Paper
       elevation={0}
@@ -244,7 +334,7 @@ Design Philosophy: Terminal-inspired green aesthetic.`,
         color: colors.foreground,
         border: `1px solid ${colors.border}`,
         borderRadius: 3,
-        height: '500px',
+        height: '600px',
         overflow: 'hidden',
         transition: 'all 0.15s ease',
         boxShadow: isDark 
@@ -252,7 +342,7 @@ Design Philosophy: Terminal-inspired green aesthetic.`,
           : '0 12px 24px rgba(0, 0, 0, 0.1)',
       }}
     >
-      {/* Terminal Header */}
+      {/* Terminal Header with Traffic Lights */}
       <Box
         sx={{
           display: 'flex',
@@ -264,16 +354,112 @@ Design Philosophy: Terminal-inspired green aesthetic.`,
           borderBottom: `1px solid ${colors.border}`,
           borderTopLeftRadius: 12,
           borderTopRightRadius: 12,
+          background: isDark 
+            ? 'linear-gradient(180deg, #2A2C2E 0%, #25272A 100%)'
+            : 'linear-gradient(180deg, #F0F0F0 0%, #E8E8E8 100%)',
+          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         }}
       >
-        <Typography variant="body2" sx={{ 
-          color: colors.foreground,
-          fontFamily: '"JetBrains Mono", monospace',
-          fontSize: '12px',
-          fontWeight: 500,
-        }}>
-          sumanrajsharma — terminal — 80×24
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, ml: 1 }}>
+            {/* Close Button */}
+            <Box
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.red,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.1s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.redHover,
+                  color: '#8B1F1F',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+              }}
+            >
+              ×
+            </Box>
+            
+            {/* Minimize Button */}
+            <Box
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.yellow,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.1s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.yellowHover,
+                  color: '#8B6F00',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+              }}
+            >
+              −
+            </Box>
+            
+            {/* Maximize Button */}
+            <Box
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.green,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '8px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.1s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.greenHover,
+                  color: '#1B5E20',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+              }}
+            >
+              ⬢
+            </Box>
+          </Box>
+          
+          <Typography variant="body2" sx={{ 
+            color: colors.foreground,
+            ml: 2,
+            fontFamily: '"JetBrains Mono", monospace',
+            fontSize: '12px',
+            fontWeight: 500,
+            textShadow: isDark 
+              ? '0 1px 0 rgba(255, 255, 255, 0.1)' 
+              : '0 1px 0 rgba(255, 255, 255, 0.8)',
+          }}>
+            sumanrajsharma — terminal — 80×24
+          </Typography>
+        </Box>
       </Box>
 
       {/* Terminal Content */}
@@ -284,18 +470,64 @@ Design Philosophy: Terminal-inspired green aesthetic.`,
           fontFamily: '"JetBrains Mono", monospace',
           fontSize: '14px',
           lineHeight: 1.4,
-          height: 'calc(100% - 56px)',
+          height: 'calc(100% - 48px)',
           overflow: 'auto',
           bgcolor: colors.background,
           scrollBehavior: 'smooth',
         }}
       >
         <Box sx={{ mb: 2 }}>
-          {output.map((line, index) => (
-            <Box key={index} sx={{ whiteSpace: 'pre-wrap', color: line.startsWith('$') ? colors.accent : colors.foreground }}>
-              {line}
+          {output.length === 0 && (
+            <Box sx={{ color: colors.foreground, fontStyle: 'italic' }}>
+              Initializing terminal...
             </Box>
-          ))}
+          )}
+          {output.map((line, index) => {
+            const isCommand = line && line.startsWith('$');
+            const isHeader = line && line.startsWith('='.repeat(10));
+            const isSection = line && /^(📍|🚀|📞|💡)/.test(line);
+            const isEmoji = line && /^(👨‍💻|🎯)/.test(line);
+            
+            let textColor = colors.foreground;
+            let fontWeight = 'normal';
+            let fontSize = '14px';
+            let marginBottom = '0';
+            
+            if (isCommand) {
+              textColor = colors.accent;
+              fontWeight = 'bold';
+            } else if (isHeader) {
+              textColor = colors.accent;
+              fontWeight = 'bold';
+              fontSize = '13px';
+            } else if (isSection) {
+              textColor = colors.secondary;
+              fontWeight = 'bold';
+              fontSize = '14px';
+              marginBottom = '4px';
+            } else if (isEmoji) {
+              textColor = colors.foreground;
+              fontWeight = 'bold';
+              fontSize = '15px';
+            }
+            
+            return (
+              <Box 
+                key={index} 
+                sx={{ 
+                  whiteSpace: 'pre-wrap', 
+                  color: textColor,
+                  fontWeight,
+                  fontSize,
+                  marginBottom,
+                  lineHeight: 1.5,
+                  fontFamily: '"JetBrains Mono", monospace',
+                }}
+              >
+                {line || '\u00A0'}
+              </Box>
+            );
+          })}
         </Box>
         
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -338,181 +570,141 @@ export function HeroTerminalSection({ profile, projects, skills }: HeroTerminalS
         backgroundColor: 'background.default',
         color: 'text.primary',
         py: { xs: 4, md: 8 },
+        // Developer workspace background pattern
+        backgroundImage: isDark 
+          ? 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.02) 1px, transparent 0)'
+          : 'radial-gradient(circle at 1px 1px, rgba(0,0,0,0.02) 1px, transparent 0)',
+        backgroundSize: '20px 20px',
       }}
     >
-      <Container maxWidth="xl">
-        <Grid container spacing={4} alignItems="center">
-          {/* Left Side - Hero Content */}
-          <Grid item xs={12} md={6}>
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+      <Container maxWidth="lg">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          {/* Brief intro text above terminal */}
+          <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                mb: 2,
+                color: 'primary.main',
+                fontWeight: 500,
+                letterSpacing: '0.1em',
+                fontFamily: 'monospace',
+              }}
             >
-              <Box sx={{ pr: { md: 4 } }}>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    mb: 2,
-                    color: 'primary.main',
-                    fontWeight: 500,
-                    letterSpacing: '0.1em',
-                  }}
-                >
-                  PORTFOLIO
-                </Typography>
-                
-                <Typography
-                  variant="h1"
-                  sx={{
-                    mb: 3,
-                    fontWeight: 700,
-                    background: isDark 
-                      ? 'linear-gradient(135deg, #FFFFFF 0%, #E8E8E8 100%)'
-                      : 'linear-gradient(135deg, #000000 0%, #333333 100%)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  {profile?.name || 'Suman Raj Sharma'}
-                </Typography>
-                
-                <Typography
-                  variant="h4"
-                  sx={{
-                    mb: 4,
-                    color: 'text.secondary',
-                    fontWeight: 300,
-                  }}
-                >
-                  Full-Stack Developer & Creative Problem Solver
-                </Typography>
-                
-                <Typography
-                  variant="body1"
-                  sx={{
-                    mb: 6,
-                    color: 'text.secondary',
-                    lineHeight: 1.8,
-                    maxWidth: '500px',
-                  }}
-                >
-                  {profile?.shortBio || 'Building exceptional digital experiences with modern technologies. Passionate about creating innovative solutions and sharing knowledge through code.'}
-                </Typography>
-                
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: 3,
-                    flexWrap: 'wrap',
-                    mb: 4,
-                  }}
-                >
-                  <Button
-                    variant="contained"
-                    size="large"
-                    href="#projects"
-                    sx={{
-                      px: 4,
-                      py: 1.5,
-                      fontSize: '1rem',
-                    }}
-                  >
-                    View Projects
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    href="#contact"
-                    sx={{
-                      px: 4,
-                      py: 1.5,
-                      fontSize: '1rem',
-                    }}
-                  >
-                    Get In Touch
-                  </Button>
-                </Box>
-
-                {/* Quick Links */}
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                  <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>
-                    Connect:
-                  </Typography>
-                  <Button
-                    size="small"
-                    startIcon={<GitHub />}
-                    href={profile?.socials?.github || 'https://github.com/sumanxcodes'}
-                    target="_blank"
-                    sx={{ minWidth: 'auto' }}
-                  >
-                    GitHub
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<LinkedIn />}
-                    href={profile?.socials?.linkedin || 'https://linkedin.com/in/sumanrajsharma'}
-                    target="_blank"
-                    sx={{ minWidth: 'auto' }}
-                  >
-                    LinkedIn
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<Email />}
-                    href={`mailto:${profile?.socials?.email || 'contact@sumanrajsharma.dev'}`}
-                    sx={{ minWidth: 'auto' }}
-                  >
-                    Email
-                  </Button>
-                </Box>
-              </Box>
-            </motion.div>
-          </Grid>
-
-          {/* Right Side - Terminal */}
-          <Grid item xs={12} md={6}>
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+              DEVELOPER WORKSPACE
+            </Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                color: 'text.secondary',
+                fontWeight: 300,
+                fontFamily: 'monospace',
+              }}
             >
-              <Box sx={{ pl: { md: 4 } }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    mb: 3,
-                    fontFamily: 'monospace',
-                    color: 'primary.main',
-                    fontWeight: 600,
-                  }}
-                >
-                  <TerminalIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-                  Interactive Terminal
-                </Typography>
-                
-                <SimulatedTerminal
-                  profile={profile}
-                  projects={projects}
-                  skills={skills}
-                />
-                
-                <Typography
-                  variant="body2"
-                  sx={{
-                    mt: 2,
-                    color: 'text.secondary',
-                    fontFamily: 'monospace',
-                    textAlign: 'center',
-                  }}
-                >
-                  💡 Try commands: help, whoami, skills, projects, contact
-                </Typography>
-              </Box>
-            </motion.div>
-          </Grid>
-        </Grid>
+              $ exploring portfolio in terminal mode...
+            </Typography>
+          </Box>
+
+          {/* Main Terminal Window */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: 4 }}>
+            <Box sx={{ width: '100%', maxWidth: '900px' }}>
+              <SimulatedTerminal
+                profile={profile}
+                projects={projects}
+                skills={skills}
+              />
+            </Box>
+          </Box>
+
+          {/* Floating Action Buttons */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 3,
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              mb: 4,
+            }}
+          >
+            <Button
+              variant="contained"
+              size="large"
+              href="#projects"
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontSize: '1rem',
+                fontFamily: 'monospace',
+                textTransform: 'none',
+              }}
+            >
+              $ cd projects/
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              href="#contact"
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontSize: '1rem',
+                fontFamily: 'monospace',
+                textTransform: 'none',
+              }}
+            >
+              $ cat contact.md
+            </Button>
+          </Box>
+
+          {/* Social Links as Terminal Commands */}
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="body2" sx={{ color: 'text.secondary', fontFamily: 'monospace' }}>
+              $ curl -L
+            </Typography>
+            <Button
+              size="small"
+              startIcon={<GitHub />}
+              href={profile?.socials?.github || 'https://github.com/sumanxcodes'}
+              target="_blank"
+              sx={{ 
+                minWidth: 'auto',
+                fontFamily: 'monospace',
+                textTransform: 'none',
+              }}
+            >
+              github.com/sumanxcodes
+            </Button>
+            <Button
+              size="small"
+              startIcon={<LinkedIn />}
+              href={profile?.socials?.linkedin || 'https://linkedin.com/in/sumanrajsharma'}
+              target="_blank"
+              sx={{ 
+                minWidth: 'auto',
+                fontFamily: 'monospace',
+                textTransform: 'none',
+              }}
+            >
+              linkedin.com/in/sumanrajsharma
+            </Button>
+            <Button
+              size="small"
+              startIcon={<Email />}
+              href={`mailto:${profile?.socials?.email || 'contact@sumanrajsharma.dev'}`}
+              sx={{ 
+                minWidth: 'auto',
+                fontFamily: 'monospace',
+                textTransform: 'none',
+              }}
+            >
+              contact@sumanrajsharma.dev
+            </Button>
+          </Box>
+        </motion.div>
       </Container>
       
       {/* Scroll indicator */}
