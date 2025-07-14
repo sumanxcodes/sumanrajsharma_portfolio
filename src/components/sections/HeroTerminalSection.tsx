@@ -6,6 +6,9 @@ import { Terminal as TerminalIcon, GitHub, LinkedIn, Email } from '@mui/icons-ma
 import { motion } from 'framer-motion';
 import { Profile, Project, Skill } from '@/types/sanity';
 import { usePortfolioTheme } from '@/components/providers/ThemeProvider';
+import { createTerminalTheme, getTerminalContentStyles, getTerminalAnimationTiming } from '@/lib/terminal-theme';
+import { MacOSWindowControls } from '@/components/ui/MacOSWindowControls';
+import { AnimatedSection } from '@/components/ui/AnimatedSection';
 
 interface HeroTerminalSectionProps {
   profile: Profile | null;
@@ -26,25 +29,10 @@ function SimulatedTerminal({ profile, projects, skills }: HeroTerminalSectionPro
   const { mode } = usePortfolioTheme();
   const isDark = mode === 'dark';
   
-  // Theme-aware terminal colors
-  const terminalColors = {
-    light: {
-      background: '#F8F9FA',
-      foreground: '#2C3E50',
-      accent: '#27AE60',
-      secondary: '#34495E',
-      border: '#BDC3C7',
-    },
-    dark: {
-      background: '#1D1F21',
-      foreground: '#A8E6CF',
-      accent: '#50fa7b',
-      secondary: '#f1fa8c',
-      border: '#373B41',
-    },
-  };
-
-  const colors = terminalColors[isDark ? 'dark' : 'light'];
+  // Use unified terminal theme
+  const terminalTheme = createTerminalTheme(mode);
+  const colors = terminalTheme.colors;
+  const contentStyles = getTerminalContentStyles(mode);
 
   // Auto-scroll to bottom when output changes
   useEffect(() => {
@@ -126,15 +114,8 @@ function SimulatedTerminal({ profile, projects, skills }: HeroTerminalSectionPro
           setOutput(prev => [...prev, line]);
           index++;
           
-          // Variable timing for smoother animation
-          let delay = 150; // Default fast timing
-          if (index <= introLines.length) {
-            // Faster for intro box lines
-            delay = line.startsWith('╔') || line.startsWith('╚') ? 100 : 80;
-          } else if (line.startsWith('$')) {
-            // Slightly slower for commands
-            delay = 300;
-          }
+          // Variable timing for smoother animation using utility
+          const delay = getTerminalAnimationTiming(line, index <= introLines.length);
           
           const timeout = setTimeout(typeSequence, delay);
           timeoutRefs.current.push(timeout);
@@ -316,15 +297,6 @@ Design Philosophy: Terminal-inspired green aesthetic.`,
     }
   };
 
-  // macOS-style colors for traffic lights
-  const macOSColors = {
-    red: '#FF5F57',
-    yellow: '#FFBD2E',
-    green: '#28CA42',
-    redHover: '#FF4A47',
-    yellowHover: '#FFB01E',
-    greenHover: '#1FB832',
-  };
 
   return (
     <Paper
@@ -342,125 +314,8 @@ Design Philosophy: Terminal-inspired green aesthetic.`,
           : '0 12px 24px rgba(0, 0, 0, 0.1)',
       }}
     >
-      {/* Terminal Header with Traffic Lights */}
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          px: 2,
-          py: 1,
-          bgcolor: isDark ? '#2A2C2E' : '#E8E8E8',
-          borderBottom: `1px solid ${colors.border}`,
-          borderTopLeftRadius: 12,
-          borderTopRightRadius: 12,
-          background: isDark 
-            ? 'linear-gradient(180deg, #2A2C2E 0%, #25272A 100%)'
-            : 'linear-gradient(180deg, #F0F0F0 0%, #E8E8E8 100%)',
-          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ display: 'flex', gap: 1, ml: 1 }}>
-            {/* Close Button */}
-            <Box
-              sx={{
-                width: 13,
-                height: 13,
-                borderRadius: '50%',
-                bgcolor: macOSColors.red,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '10px',
-                fontWeight: 'bold',
-                color: 'transparent',
-                position: 'relative',
-                transition: 'all 0.1s ease',
-                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
-                '&:hover': {
-                  bgcolor: macOSColors.redHover,
-                  color: '#8B1F1F',
-                  transform: 'scale(1.05)',
-                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
-                },
-              }}
-            >
-              ×
-            </Box>
-            
-            {/* Minimize Button */}
-            <Box
-              sx={{
-                width: 13,
-                height: 13,
-                borderRadius: '50%',
-                bgcolor: macOSColors.yellow,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '10px',
-                fontWeight: 'bold',
-                color: 'transparent',
-                position: 'relative',
-                transition: 'all 0.1s ease',
-                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
-                '&:hover': {
-                  bgcolor: macOSColors.yellowHover,
-                  color: '#8B6F00',
-                  transform: 'scale(1.05)',
-                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
-                },
-              }}
-            >
-              −
-            </Box>
-            
-            {/* Maximize Button */}
-            <Box
-              sx={{
-                width: 13,
-                height: 13,
-                borderRadius: '50%',
-                bgcolor: macOSColors.green,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '8px',
-                fontWeight: 'bold',
-                color: 'transparent',
-                position: 'relative',
-                transition: 'all 0.1s ease',
-                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
-                '&:hover': {
-                  bgcolor: macOSColors.greenHover,
-                  color: '#1B5E20',
-                  transform: 'scale(1.05)',
-                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
-                },
-              }}
-            >
-              ⬢
-            </Box>
-          </Box>
-          
-          <Typography variant="body2" sx={{ 
-            color: colors.foreground,
-            ml: 2,
-            fontFamily: '"JetBrains Mono", monospace',
-            fontSize: '12px',
-            fontWeight: 500,
-            textShadow: isDark 
-              ? '0 1px 0 rgba(255, 255, 255, 0.1)' 
-              : '0 1px 0 rgba(255, 255, 255, 0.8)',
-          }}>
-            sumanrajsharma — terminal — 80×24
-          </Typography>
-        </Box>
-      </Box>
+      {/* Terminal Header with MacOS Controls */}
+      <MacOSWindowControls isDark={isDark} />
 
       {/* Terminal Content */}
       <Box
@@ -488,40 +343,22 @@ Design Philosophy: Terminal-inspired green aesthetic.`,
             const isSection = line && /^(📍|🚀|📞|💡)/.test(line);
             const isEmoji = line && /^(👨‍💻|🎯)/.test(line);
             
-            let textColor = colors.foreground;
-            let fontWeight = 'normal';
-            let fontSize = '14px';
-            let marginBottom = '0';
+            let styleType = 'default';
+            if (isCommand) styleType = 'command';
+            else if (isHeader) styleType = 'header';
+            else if (isSection) styleType = 'section';
+            else if (isEmoji) styleType = 'emoji';
             
-            if (isCommand) {
-              textColor = colors.accent;
-              fontWeight = 'bold';
-            } else if (isHeader) {
-              textColor = colors.accent;
-              fontWeight = 'bold';
-              fontSize = '13px';
-            } else if (isSection) {
-              textColor = colors.secondary;
-              fontWeight = 'bold';
-              fontSize = '14px';
-              marginBottom = '4px';
-            } else if (isEmoji) {
-              textColor = colors.foreground;
-              fontWeight = 'bold';
-              fontSize = '15px';
-            }
+            const style = contentStyles[styleType as keyof typeof contentStyles];
             
             return (
               <Box 
                 key={index} 
                 sx={{ 
                   whiteSpace: 'pre-wrap', 
-                  color: textColor,
-                  fontWeight,
-                  fontSize,
-                  marginBottom,
                   lineHeight: 1.5,
-                  fontFamily: '"JetBrains Mono", monospace',
+                  fontFamily: terminalTheme.typography.fontFamily,
+                  ...style,
                 }}
               >
                 {line || '\u00A0'}
@@ -577,12 +414,11 @@ export function HeroTerminalSection({ profile, projects, skills }: HeroTerminalS
         backgroundSize: '20px 20px',
       }}
     >
-      <Container maxWidth="lg">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+      <AnimatedSection 
+        animationVariant="fadeIn" 
+        duration={0.8} 
+        containerProps={{ maxWidth: 'lg' }}
+      >
           {/* Brief intro text above terminal */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Typography
@@ -704,8 +540,7 @@ export function HeroTerminalSection({ profile, projects, skills }: HeroTerminalS
               contact@sumanrajsharma.dev
             </Button>
           </Box>
-        </motion.div>
-      </Container>
+      </AnimatedSection>
       
       {/* Scroll indicator */}
       <motion.div
