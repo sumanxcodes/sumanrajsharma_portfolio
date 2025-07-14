@@ -1,8 +1,7 @@
 import { Metadata } from 'next';
 import { Box } from '@mui/material';
 import { SmoothScrollNavigation } from '@/components/layout/SmoothScrollNavigation';
-import { HeroSection } from '@/components/sections/HeroSection';
-import { ClientTerminal } from '@/components/terminal/ClientTerminal';
+import { HeroTerminalSection } from '@/components/sections/HeroTerminalSection';
 import { AboutSection } from '@/components/sections/AboutSection';
 import { SkillsSection } from '@/components/sections/SkillsSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
@@ -63,8 +62,7 @@ export default async function HomePage() {
       <SmoothScrollNavigation />
       
       <Box component="main">
-        <HeroSection profile={profile} />
-        <ClientTerminal profile={profile} projects={projects} skills={skills} />
+        <HeroTerminalSection profile={profile} projects={projects} skills={skills} />
         <AboutSection profile={profile} />
         <SkillsSection skills={skills} />
         <ProjectsSection projects={projects} />

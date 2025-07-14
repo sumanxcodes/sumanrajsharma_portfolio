@@ -22,7 +22,6 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const navigationItems = [
   { label: 'Home', href: '#hero' },
-  { label: 'Terminal', href: '#terminal' },
   { label: 'About', href: '#about' },
   { label: 'Skills', href: '#skills' },
   { label: 'Projects', href: '#projects' },
