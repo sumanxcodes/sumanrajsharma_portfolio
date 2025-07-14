@@ -13,7 +13,7 @@ import {
   ListItemButton,
   ListItemText,
   Box,
-  useTheme,
+  useTheme as useMuiTheme,
   useMediaQuery,
 } from '@mui/material';
 import {
@@ -22,13 +22,14 @@ import {
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const navigationItems = [
   { label: 'Home', href: '/' },
   { label: 'About', href: '/about' },
-  { label: 'Skills', href: '/skills' },
   { label: 'Experience', href: '/experience' },
   { label: 'Education', href: '/education' },
+  { label: 'Skills', href: '/skills' },
   { label: 'Projects', href: '/projects' },
   { label: 'Blog', href: '/blog' },
   { label: 'Contact', href: '/contact' },
@@ -36,7 +37,7 @@ const navigationItems = [
 
 export function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const theme = useTheme();
+  const theme = useMuiTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const pathname = usePathname();
 
@@ -64,9 +65,12 @@ export function Navigation() {
         <Typography variant="h6" component="div">
           Suman Raj Sharma
         </Typography>
-        <IconButton onClick={handleDrawerToggle}>
-          <CloseIcon />
-        </IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ThemeToggle />
+          <IconButton onClick={handleDrawerToggle}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
       </Box>
       <List>
         {navigationItems.map((item) => (
@@ -78,10 +82,10 @@ export function Navigation() {
               selected={isActive(item.href)}
               sx={{
                 '&.Mui-selected': {
-                  backgroundColor: 'rgba(103, 80, 164, 0.12)',
-                  color: theme.palette.primary.main,
+                  backgroundColor: 'action.selected',
+                  color: 'primary.main',
                   '&:hover': {
-                    backgroundColor: 'rgba(103, 80, 164, 0.16)',
+                    backgroundColor: 'action.hover',
                   },
                 },
               }}
@@ -99,12 +103,6 @@ export function Navigation() {
       <AppBar
         position="sticky"
         elevation={0}
-        sx={{
-          backgroundColor: 'rgba(254, 247, 255, 0.9)',
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(121, 116, 126, 0.12)',
-          color: theme.palette.text.primary,
-        }}
       >
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Typography
@@ -113,10 +111,10 @@ export function Navigation() {
             href="/"
             sx={{
               fontWeight: 500,
-              color: theme.palette.primary.main,
+              color: 'primary.main',
               textDecoration: 'none',
               '&:hover': {
-                color: theme.palette.primary.dark,
+                color: 'primary.dark',
               },
             }}
           >
@@ -124,16 +122,18 @@ export function Navigation() {
           </Typography>
 
           {isMobile ? (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={handleDrawerToggle}
-              sx={{ color: theme.palette.text.primary }}
-            >
-              <MenuIcon />
-            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ThemeToggle />
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerToggle}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Box>
           ) : (
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {navigationItems.map((item) => (
                 <Button
                   key={item.href}
@@ -141,21 +141,22 @@ export function Navigation() {
                   href={item.href}
                   sx={{
                     color: isActive(item.href)
-                      ? theme.palette.primary.main
-                      : theme.palette.text.primary,
+                      ? 'primary.main'
+                      : 'text.primary',
                     fontWeight: isActive(item.href) ? 500 : 400,
                     textTransform: 'none',
                     minWidth: 'auto',
                     px: 2,
                     '&:hover': {
-                      backgroundColor: 'rgba(103, 80, 164, 0.08)',
-                      color: theme.palette.primary.main,
+                      backgroundColor: 'action.hover',
+                      color: 'primary.main',
                     },
                   }}
                 >
                   {item.label}
                 </Button>
               ))}
+              <ThemeToggle />
             </Box>
           )}
         </Toolbar>

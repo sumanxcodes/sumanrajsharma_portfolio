@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Paper, Typography, IconButton } from '@mui/material';
+import { Box, Paper, Typography, IconButton, useTheme } from '@mui/material';
 import { Close, Minimize, CropSquare } from '@mui/icons-material';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Profile, Project, Skill } from '@/types/sanity';
+import { usePortfolioTheme } from '@/components/providers/ThemeProvider';
 
 interface PortfolioTerminalProps {
   profile: Profile | null;
@@ -36,6 +37,72 @@ export function PortfolioTerminal({
   const [currentPath, setCurrentPath] = useState('/home/suman');
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  
+  const theme = useTheme();
+  const { mode } = usePortfolioTheme();
+  const isDark = mode === 'dark';
+  
+  // Theme-aware terminal colors
+  const terminalTheme = {
+    light: {
+      background: '#F8F9FA',
+      foreground: '#2C3E50',
+      cursor: '#2C3E50',
+      selectionBackground: '#BDC3C7',
+      black: '#2C3E50',
+      red: '#E74C3C',
+      green: '#27AE60',
+      yellow: '#F39C12',
+      blue: '#3498DB',
+      magenta: '#9B59B6',
+      cyan: '#16A085',
+      white: '#ECF0F1',
+      brightBlack: '#34495E',
+      brightRed: '#C0392B',
+      brightGreen: '#229954',
+      brightYellow: '#D68910',
+      brightBlue: '#2980B9',
+      brightMagenta: '#8E44AD',
+      brightCyan: '#138D75',
+      brightWhite: '#FFFFFF',
+    },
+    dark: {
+      background: '#1D1F21',
+      foreground: '#A8E6CF',
+      cursor: '#A8E6CF',
+      selectionBackground: '#373B41',
+      black: '#1D1F21',
+      red: '#CC6666',
+      green: '#B5BD68',
+      yellow: '#F0C674',
+      blue: '#81A2BE',
+      magenta: '#B294BB',
+      cyan: '#8ABEB7',
+      white: '#C5C8C6',
+      brightBlack: '#373B41',
+      brightRed: '#CC6666',
+      brightGreen: '#B5BD68',
+      brightYellow: '#F0C674',
+      brightBlue: '#81A2BE',
+      brightMagenta: '#B294BB',
+      brightCyan: '#8ABEB7',
+      brightWhite: '#FFFFFF',
+    }
+  };
+
+  // macOS-style colors for traffic lights (exact macOS colors)
+  const macOSColors = {
+    red: '#FF5F57',
+    yellow: '#FFBD2E',
+    green: '#28CA42',
+    redHover: '#FF4A47',
+    yellowHover: '#FFB01E',
+    greenHover: '#1FB832',
+    // Inner shadow colors for depth
+    redInner: '#CC3E34',
+    yellowInner: '#E09B0B',
+    greenInner: '#1F8B32',
+  };
 
   // Terminal commands
   const commands: Record<string, CommandHandler> = {
@@ -356,28 +423,7 @@ inspired by modern developer tools and clean interfaces.
 
     // Initialize terminal
     const terminal = new Terminal({
-      theme: {
-        background: '#000000',
-        foreground: '#ffffff',
-        cursor: '#ffffff',
-        selectionBackground: '#333333',
-        black: '#000000',
-        red: '#ff5555',
-        green: '#50fa7b',
-        yellow: '#f1fa8c',
-        blue: '#bd93f9',
-        magenta: '#ff79c6',
-        cyan: '#8be9fd',
-        white: '#f8f8f2',
-        brightBlack: '#44475a',
-        brightRed: '#ff5555',
-        brightGreen: '#50fa7b',
-        brightYellow: '#f1fa8c',
-        brightBlue: '#bd93f9',
-        brightMagenta: '#ff79c6',
-        brightCyan: '#8be9fd',
-        brightWhite: '#ffffff',
-      },
+      theme: terminalTheme[isDark ? 'dark' : 'light'],
       fontFamily: '"JetBrains Mono", "Courier New", monospace',
       fontSize: 14,
       lineHeight: 1.4,
@@ -460,7 +506,7 @@ inspired by modern developer tools and clean interfaces.
       window.removeEventListener('resize', handleResize);
       terminal.dispose();
     };
-  }, [profile, projects, skills, currentPath, commandHistory, minimized]);
+  }, [profile, projects, skills, currentPath, commandHistory, minimized, isDark]);
 
   if (minimized) {
     return (
@@ -472,9 +518,21 @@ inspired by modern developer tools and clean interfaces.
           p: 2,
           cursor: 'pointer',
           zIndex: 1000,
-          bgcolor: '#000000',
-          color: '#ffffff',
+          bgcolor: isDark ? '#1D1F21' : '#F8F9FA',
+          color: isDark ? '#A8E6CF' : '#2C3E50',
           minWidth: 200,
+          borderRadius: 3,
+          border: `1px solid ${isDark ? '#373B41' : '#BDC3C7'}`,
+          boxShadow: isDark 
+            ? '0 8px 32px rgba(0, 0, 0, 0.4)' 
+            : '0 8px 32px rgba(0, 0, 0, 0.1)',
+          transition: 'all 0.15s ease',
+          '&:hover': {
+            transform: 'translateY(-2px)',
+            boxShadow: isDark 
+              ? '0 12px 48px rgba(0, 0, 0, 0.5)' 
+              : '0 12px 48px rgba(0, 0, 0, 0.15)',
+          },
         }}
         onClick={onToggleMinimize}
       >
@@ -485,7 +543,7 @@ inspired by modern developer tools and clean interfaces.
 
   return (
     <Paper
-      elevation={8}
+      elevation={0}
       sx={{
         position: 'fixed',
         top: '50%',
@@ -493,11 +551,17 @@ inspired by modern developer tools and clean interfaces.
         transform: 'translate(-50%, -50%)',
         width: { xs: '95vw', md: '80vw', lg: '70vw' },
         height: { xs: '80vh', md: '70vh' },
-        bgcolor: '#000000',
-        border: '1px solid #333333',
+        bgcolor: isDark ? '#1D1F21' : '#F8F9FA',
+        border: `1px solid ${isDark ? '#373B41' : '#BDC3C7'}`,
+        borderRadius: 3,
         zIndex: 1000,
         display: 'flex',
         flexDirection: 'column',
+        boxShadow: isDark 
+          ? '0 25px 50px rgba(0, 0, 0, 0.6)' 
+          : '0 25px 50px rgba(0, 0, 0, 0.15)',
+        backdropFilter: 'blur(20px)',
+        transition: 'all 0.15s ease',
       }}
     >
       {/* Terminal Header */}
@@ -506,32 +570,131 @@ inspired by modern developer tools and clean interfaces.
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          p: 1,
-          bgcolor: '#1a1a1a',
-          borderBottom: '1px solid #333333',
+          px: 2,
+          py: 1,
+          bgcolor: isDark ? '#2A2C2E' : '#E8E8E8',
+          borderBottom: `1px solid ${isDark ? '#373B41' : '#BDC3C7'}`,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          background: isDark 
+            ? 'linear-gradient(180deg, #2A2C2E 0%, #25272A 100%)'
+            : 'linear-gradient(180deg, #F0F0F0 0%, #E8E8E8 100%)',
+          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#ff5555' }} />
-            <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#f1fa8c' }} />
-            <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#50fa7b' }} />
+          <Box sx={{ display: 'flex', gap: 1, ml: 1 }}>
+            {/* Close Button */}
+            <Box
+              onClick={onClose}
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.red,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.15s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.redHover,
+                  color: '#8B1F1F',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+                '&:active': {
+                  transform: 'scale(0.95)',
+                  boxShadow: `inset 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                },
+              }}
+            >
+              ×
+            </Box>
+            
+            {/* Minimize Button */}
+            <Box
+              onClick={onToggleMinimize}
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.yellow,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.15s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.yellowHover,
+                  color: '#8B6F00',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+                '&:active': {
+                  transform: 'scale(0.95)',
+                  boxShadow: `inset 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                },
+              }}
+            >
+              −
+            </Box>
+            
+            {/* Maximize Button */}
+            <Box
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.green,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '8px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.15s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.greenHover,
+                  color: '#1B5E20',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+                '&:active': {
+                  transform: 'scale(0.95)',
+                  boxShadow: `inset 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                },
+              }}
+            >
+              ⬢
+            </Box>
           </Box>
-          <Typography variant="body2" sx={{ color: '#ffffff', ml: 2 }}>
-            suman@portfolio: ~/portfolio
+          
+          <Typography variant="body2" sx={{ 
+            color: isDark ? '#A8E6CF' : '#2C3E50',
+            ml: 2,
+            fontFamily: '"JetBrains Mono", monospace',
+            fontSize: '12px',
+            fontWeight: 500,
+            textShadow: isDark 
+              ? '0 1px 0 rgba(255, 255, 255, 0.1)' 
+              : '0 1px 0 rgba(255, 255, 255, 0.8)',
+          }}>
+            sumanrajsharma — -zsh — 139×33
           </Typography>
-        </Box>
-        
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <IconButton size="small" onClick={onToggleMinimize} sx={{ color: '#ffffff' }}>
-            <Minimize fontSize="small" />
-          </IconButton>
-          <IconButton size="small" sx={{ color: '#ffffff' }}>
-            <CropSquare fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={onClose} sx={{ color: '#ffffff' }}>
-            <Close fontSize="small" />
-          </IconButton>
         </Box>
       </Box>
 
@@ -540,12 +703,18 @@ inspired by modern developer tools and clean interfaces.
         ref={terminalRef}
         sx={{
           flex: 1,
-          bgcolor: '#000000',
+          bgcolor: isDark ? '#1D1F21' : '#F8F9FA',
+          borderBottomLeftRadius: 12,
+          borderBottomRightRadius: 12,
+          overflow: 'hidden',
           '& .xterm': {
             height: '100%',
           },
           '& .xterm-viewport': {
-            backgroundColor: '#000000',
+            backgroundColor: isDark ? '#1D1F21' : '#F8F9FA',
+          },
+          '& .xterm-screen': {
+            backgroundColor: isDark ? '#1D1F21' : '#F8F9FA',
           },
         }}
       />

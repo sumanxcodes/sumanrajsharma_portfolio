@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Box, Typography, Container, Button, Paper } from '@mui/material';
+import { Box, Typography, Container, Button, Paper, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Terminal, Code, PlayArrow } from '@mui/icons-material';
 import { PortfolioTerminal } from '@/components/terminal/PortfolioTerminal';
 import { Profile, Project, Skill } from '@/types/sanity';
+import { usePortfolioTheme } from '@/components/providers/ThemeProvider';
 
 interface TerminalSectionProps {
   profile: Profile | null;
@@ -22,6 +23,34 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
 
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [terminalMinimized, setTerminalMinimized] = useState(false);
+  
+  const theme = useTheme();
+  const { mode } = usePortfolioTheme();
+  const isDark = mode === 'dark';
+
+  // Theme-aware colors
+  const terminalColors = {
+    light: {
+      background: '#F8F9FA',
+      foreground: '#2C3E50',
+      accent: '#27AE60',
+      secondary: '#34495E',
+      border: '#BDC3C7',
+      cardBg: '#FFFFFF',
+      pattern: '#E8E8E8',
+    },
+    dark: {
+      background: '#1D1F21',
+      foreground: '#A8E6CF',
+      accent: '#50fa7b',
+      secondary: '#f1fa8c',
+      border: '#373B41',
+      cardBg: '#2A2C2E',
+      pattern: '#333333',
+    },
+  };
+
+  const colors = terminalColors[isDark ? 'dark' : 'light'];
 
   const handleOpenTerminal = () => {
     setTerminalOpen(true);
@@ -54,10 +83,11 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
         ref={ref}
         sx={{
           py: { xs: 8, md: 12 },
-          bgcolor: '#000000',
-          color: '#ffffff',
+          bgcolor: colors.background,
+          color: colors.foreground,
           position: 'relative',
           overflow: 'hidden',
+          transition: 'all 0.15s ease',
         }}
       >
         {/* Background Pattern */}
@@ -68,12 +98,13 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
             left: 0,
             right: 0,
             bottom: 0,
-            opacity: 0.05,
+            opacity: isDark ? 0.05 : 0.03,
             backgroundImage: `
-              linear-gradient(90deg, #333333 1px, transparent 1px),
-              linear-gradient(#333333 1px, transparent 1px)
+              linear-gradient(90deg, ${colors.pattern} 1px, transparent 1px),
+              linear-gradient(${colors.pattern} 1px, transparent 1px)
             `,
             backgroundSize: '20px 20px',
+            transition: 'opacity 0.15s ease',
           }}
         />
 
@@ -88,7 +119,7 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                 variant="subtitle2"
                 sx={{
                   mb: 2,
-                  color: '#50fa7b',
+                  color: colors.accent,
                   fontWeight: 500,
                   fontFamily: 'monospace',
                 }}
@@ -102,15 +133,16 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                   mb: 3,
                   fontWeight: 600,
                   fontFamily: 'monospace',
+                  color: colors.foreground,
                 }}
               >
-                Portfolio Terminal
+                Developer Terminal
               </Typography>
               
               <Typography
                 variant="body1"
                 sx={{
-                  color: '#f8f8f2',
+                  color: colors.secondary,
                   maxWidth: '600px',
                   mx: 'auto',
                   mb: 6,
@@ -133,16 +165,18 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                   startIcon={<Terminal />}
                   onClick={handleOpenTerminal}
                   sx={{
-                    bgcolor: '#50fa7b',
-                    color: '#000000',
+                    bgcolor: colors.accent,
+                    color: isDark ? '#000000' : '#FFFFFF',
                     fontWeight: 600,
                     px: 4,
                     py: 1.5,
                     fontSize: '1.1rem',
                     fontFamily: 'monospace',
+                    border: `2px solid ${colors.accent}`,
                     '&:hover': {
-                      bgcolor: '#45e66d',
+                      bgcolor: isDark ? '#45e66d' : '#219a52',
                       transform: 'translateY(-2px)',
+                      boxShadow: `0 8px 25px ${colors.accent}25`,
                     },
                   }}
                 >
@@ -159,7 +193,7 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                   mb: 4,
                   textAlign: 'center',
                   fontWeight: 600,
-                  color: '#bd93f9',
+                  color: colors.secondary,
                 }}
               >
                 What you can do:
@@ -202,35 +236,38 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                     <Paper
                       sx={{
                         p: 3,
-                        bgcolor: '#1a1a1a',
-                        border: '1px solid #333333',
-                        color: '#ffffff',
+                        bgcolor: colors.cardBg,
+                        border: `1px solid ${colors.border}`,
+                        color: colors.foreground,
                         textAlign: 'center',
                         height: '100%',
-                        transition: 'all 0.3s ease',
+                        borderRadius: 2,
+                        transition: 'all 0.15s ease',
                         '&:hover': {
-                          borderColor: '#50fa7b',
+                          borderColor: colors.accent,
                           transform: 'translateY(-4px)',
+                          boxShadow: `0 8px 25px ${colors.accent}15`,
                         },
                       }}
                     >
-                      <Box sx={{ color: '#50fa7b', mb: 2 }}>
+                      <Box sx={{ color: colors.accent, mb: 2 }}>
                         {feature.icon}
                       </Box>
-                      <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                      <Typography variant="h6" sx={{ mb: 1, fontWeight: 600, color: colors.foreground }}>
                         {feature.title}
                       </Typography>
-                      <Typography variant="body2" sx={{ color: '#f8f8f2', mb: 2 }}>
+                      <Typography variant="body2" sx={{ color: colors.secondary, mb: 2 }}>
                         {feature.description}
                       </Typography>
                       <Box
                         sx={{
-                          bgcolor: '#000000',
+                          bgcolor: colors.background,
                           p: 1,
                           borderRadius: 1,
                           fontFamily: 'monospace',
                           fontSize: '0.875rem',
-                          color: '#50fa7b',
+                          color: colors.accent,
+                          border: `1px solid ${colors.border}`,
                         }}
                       >
                         $ {feature.command}
@@ -249,8 +286,8 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                 <Paper
                   sx={{
                     p: 4,
-                    bgcolor: '#0d1117',
-                    border: '1px solid #333333',
+                    bgcolor: colors.cardBg,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: 2,
                   }}
                 >
@@ -258,7 +295,7 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                     variant="h6"
                     sx={{
                       mb: 3,
-                      color: '#f1fa8c',
+                      color: colors.secondary,
                       fontFamily: 'monospace',
                       fontWeight: 600,
                     }}
@@ -283,8 +320,8 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                           fontSize: '0.9rem',
                         }}
                       >
-                        <Box sx={{ color: '#50fa7b', mr: 1 }}>$</Box>
-                        <Box sx={{ color: '#f8f8f2' }}>{command}</Box>
+                        <Box sx={{ color: colors.accent, mr: 1 }}>$</Box>
+                        <Box sx={{ color: colors.foreground }}>{command}</Box>
                       </Box>
                     ))}
                   </Box>
@@ -293,7 +330,7 @@ export function TerminalSection({ profile, projects, skills }: TerminalSectionPr
                     variant="body2"
                     sx={{
                       mt: 3,
-                      color: '#8be9fd',
+                      color: colors.secondary,
                       fontStyle: 'italic',
                     }}
                   >

@@ -9,42 +9,59 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Material 3 Color Tokens
-        primary: {
-          DEFAULT: '#6750a4',
-          light: '#9a82db',
-          dark: '#4f378a',
-          container: '#eaddff',
-          'on-container': '#21005d',
-        },
-        secondary: {
-          DEFAULT: '#625b71',
-          light: '#8b83a1',
-          dark: '#4a4458',
-          container: '#e8def8',
-          'on-container': '#332d41',
-        },
-        tertiary: {
-          DEFAULT: '#7e5260',
-          light: '#b17d8e',
-          dark: '#633b48',
-          container: '#ffd8e4',
-          'on-container': '#31111d',
-        },
-        surface: {
-          DEFAULT: '#fef7ff',
-          variant: '#e7e0ec',
-          container: '#f3edf7',
-          'container-high': '#ece6f0',
-          'container-highest': '#e6e0e9',
-        },
-        outline: {
-          DEFAULT: '#79747e',
-          variant: '#cac4d0',
-        },
-        // Custom additions
+        // Optimal Monochrome Color Palette
         background: "var(--background)",
         foreground: "var(--foreground)",
+        surface: {
+          DEFAULT: "var(--surface)",
+          variant: "var(--surface-variant)",
+          container: "var(--surface-container)",
+          'container-high': "var(--surface-container-high)",
+          'container-highest': "var(--surface-container-highest)",
+        },
+        primary: {
+          DEFAULT: "var(--primary)",
+          light: '#8B7ACC',
+          dark: '#533A7C',
+          container: '#EADDFF',
+          'on-container': '#21005D',
+        },
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          light: '#8B839A',
+          dark: '#493F55',
+          container: '#E8DEF8',
+          'on-container': '#332D41',
+        },
+        text: {
+          primary: "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          tertiary: "var(--text-tertiary)",
+        },
+        outline: {
+          DEFAULT: "var(--outline)",
+          variant: "var(--outline-variant)",
+        },
+        // Neutral Scale
+        neutral: {
+          0: "var(--neutral-0)",
+          10: "var(--neutral-10)",
+          20: "var(--neutral-20)",
+          30: "var(--neutral-30)",
+          40: "var(--neutral-40)",
+          50: "var(--neutral-50)",
+          60: "var(--neutral-60)",
+          70: "var(--neutral-70)",
+          80: "var(--neutral-80)",
+          90: "var(--neutral-90)",
+          95: "var(--neutral-95)",
+          99: "var(--neutral-99)",
+        },
+        // System Colors
+        error: "var(--error)",
+        success: "var(--success)",
+        warning: "var(--warning)",
+        info: "var(--info)",
       },
       fontFamily: {
         'roboto': ['Roboto', 'sans-serif'],

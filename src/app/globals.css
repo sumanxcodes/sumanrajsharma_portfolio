@@ -5,26 +5,90 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
 :root {
-  --background: #fef7ff;
-  --foreground: #1d1b20;
-  --surface: #fef7ff;
-  --surface-variant: #e7e0ec;
-  --primary: #6750a4;
-  --on-primary: #ffffff;
-  --secondary: #625b71;
-  --on-secondary: #ffffff;
+  /* Optimal Monochrome Color Palette - Light Mode */
+  --background: #FEF7FF;
+  --foreground: #1D1B20;
+  --surface: #FEF7FF;
+  --surface-variant: #E7E0EC;
+  --surface-container: #F7F2FA;
+  --surface-container-high: #F1ECF4;
+  --surface-container-highest: #ECE6F0;
+  --primary: #6750A4;
+  --on-primary: #FFFFFF;
+  --secondary: #625B71;
+  --on-secondary: #FFFFFF;
+  --text-primary: #1D1B20;
+  --text-secondary: #49454F;
+  --text-tertiary: #79747E;
+  --outline: #79747E;
+  --outline-variant: #CAC4D0;
+  
+  /* Neutral Scale - Light Mode */
+  --neutral-0: #FFFFFF;
+  --neutral-10: #1D1B20;
+  --neutral-20: #313033;
+  --neutral-30: #49454F;
+  --neutral-40: #605C66;
+  --neutral-50: #79747E;
+  --neutral-60: #938F99;
+  --neutral-70: #AEA9B4;
+  --neutral-80: #CAC4D0;
+  --neutral-90: #E6E0E9;
+  --neutral-95: #F5F0F7;
+  --neutral-99: #FEF7FF;
+  
+  /* System Colors */
+  --error: #BA1A1A;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --info: #0EA5E9;
+  
+  /* Color Scheme */
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Optimal Monochrome Color Palette - Dark Mode */
     --background: #141218;
-    --foreground: #e6e0e9;
+    --foreground: #E6E0E9;
     --surface: #141218;
-    --surface-variant: #49454f;
-    --primary: #d0bcff;
-    --on-primary: #21005d;
-    --secondary: #ccc2dc;
-    --on-secondary: #332d41;
+    --surface-variant: #49454F;
+    --surface-container: #211F26;
+    --surface-container-high: #2B2930;
+    --surface-container-highest: #36343B;
+    --primary: #D0BCFF;
+    --on-primary: #21005D;
+    --secondary: #CCC2DC;
+    --on-secondary: #332D41;
+    --text-primary: #E6E0E9;
+    --text-secondary: #CAC4D0;
+    --text-tertiary: #938F99;
+    --outline: #938F99;
+    --outline-variant: #49454F;
+    
+    /* Neutral Scale - Dark Mode */
+    --neutral-0: #000000;
+    --neutral-10: #E6E0E9;
+    --neutral-20: #D0C9D4;
+    --neutral-30: #CAC4D0;
+    --neutral-40: #B4ADB8;
+    --neutral-50: #938F99;
+    --neutral-60: #79747E;
+    --neutral-70: #5F5B66;
+    --neutral-80: #49454F;
+    --neutral-90: #312E33;
+    --neutral-95: #211F26;
+    --neutral-99: #141218;
+    
+    /* System Colors - Dark Mode */
+    --error: #F2B8B5;
+    --success: #34D399;
+    --warning: #FBBF24;
+    --info: #38BDF8;
+    
+    /* Color Scheme */
+    color-scheme: dark;
   }
 }
 

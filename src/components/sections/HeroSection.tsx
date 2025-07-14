@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Box, Typography, Button, Container } from '@mui/material';
+import { Box, Typography, Button, Container, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { Profile } from '@/types/sanity';
 
@@ -10,6 +10,9 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ profile }: HeroSectionProps) {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
+  
   return (
     <Box
       id="hero"
@@ -19,7 +22,8 @@ export function HeroSection({ profile }: HeroSectionProps) {
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%)',
+        backgroundColor: 'background.default',
+        color: 'text.primary',
       }}
     >
       <Container maxWidth="lg">
@@ -50,7 +54,9 @@ export function HeroSection({ profile }: HeroSectionProps) {
               sx={{
                 mb: 3,
                 fontWeight: 700,
-                background: 'linear-gradient(135deg, #000000 0%, #333333 100%)',
+                background: isDark 
+                  ? 'linear-gradient(135deg, #FFFFFF 0%, #E8E8E8 100%)'
+                  : 'linear-gradient(135deg, #000000 0%, #333333 100%)',
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',

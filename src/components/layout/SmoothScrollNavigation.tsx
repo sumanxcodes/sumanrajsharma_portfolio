@@ -18,13 +18,14 @@ import {
 import { Menu as MenuIcon, Close as CloseIcon } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const navigationItems = [
   { label: 'Home', href: '#hero' },
+  { label: 'Terminal', href: '#terminal' },
   { label: 'About', href: '#about' },
   { label: 'Skills', href: '#skills' },
   { label: 'Projects', href: '#projects' },
-  { label: 'Terminal', href: '#terminal' },
   { label: 'Contact', href: '#contact' },
 ];
 
@@ -82,9 +83,12 @@ export function SmoothScrollNavigation() {
         <Typography variant="h6" sx={{ fontWeight: 600 }}>
           Menu
         </Typography>
-        <IconButton onClick={handleDrawerToggle} size="small">
-          <CloseIcon />
-        </IconButton>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ThemeToggle />
+          <IconButton onClick={handleDrawerToggle} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
       </Box>
       <List>
         {navigationItems.map((item) => (
@@ -158,7 +162,7 @@ export function SmoothScrollNavigation() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
             >
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                 {navigationItems.map((item, index) => (
                   <Button
                     key={item.label}
@@ -191,20 +195,24 @@ export function SmoothScrollNavigation() {
                     {item.label}
                   </Button>
                 ))}
+                <ThemeToggle />
               </Box>
             </motion.div>
           )}
 
           {/* Mobile Menu Button */}
           {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-            >
-              <MenuIcon />
-            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ThemeToggle />
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={handleDrawerToggle}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Box>
           )}
         </Toolbar>
       </AppBar>

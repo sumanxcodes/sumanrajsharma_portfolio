@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useRef, useState, Suspense } from 'react';
-import { Box, Typography, Container, Button, Paper, CircularProgress } from '@mui/material';
+import { Box, Typography, Container, Button, Paper, CircularProgress, useTheme } from '@mui/material';
 import { Terminal as TerminalIcon, Code, PlayArrow } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Profile, Project, Skill } from '@/types/sanity';
+import { usePortfolioTheme } from '@/components/providers/ThemeProvider';
 
 interface ClientTerminalProps {
   profile: Profile | null;
@@ -14,7 +15,7 @@ interface ClientTerminalProps {
 }
 
 // Simulated terminal component without xterm dependency
-function SimulatedTerminal({ profile, projects, skills }: ClientTerminalProps) {
+function SimulatedTerminal({ profile, projects, skills, onClose }: ClientTerminalProps & { onClose: () => void }) {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState<string[]>([
     '$ Welcome to Suman\'s Portfolio Terminal! 🚀',
@@ -23,6 +24,38 @@ function SimulatedTerminal({ profile, projects, skills }: ClientTerminalProps) {
     ''
   ]);
   const [currentPath] = useState('/home/suman/portfolio');
+  const terminalContentRef = useRef<HTMLDivElement>(null);
+  
+  const theme = useTheme();
+  const { mode } = usePortfolioTheme();
+  const isDark = mode === 'dark';
+  
+  // Theme-aware terminal colors
+  const terminalColors = {
+    light: {
+      background: '#F8F9FA',
+      foreground: '#2C3E50',
+      accent: '#27AE60',
+      secondary: '#34495E',
+      border: '#BDC3C7',
+    },
+    dark: {
+      background: '#1D1F21',
+      foreground: '#A8E6CF',
+      accent: '#50fa7b',
+      secondary: '#f1fa8c',
+      border: '#373B41',
+    },
+  };
+
+  const colors = terminalColors[isDark ? 'dark' : 'light'];
+
+  // Auto-scroll to bottom when output changes
+  useEffect(() => {
+    if (terminalContentRef.current) {
+      terminalContentRef.current.scrollTop = terminalContentRef.current.scrollHeight;
+    }
+  }, [output]);
 
   const commands: Record<string, () => string> = {
     help: () => `Available commands:
@@ -190,31 +223,177 @@ Design Philosophy: Minimalist monochrome aesthetic.`,
     }
   };
 
+  // macOS-style colors for traffic lights
+  const macOSColors = {
+    red: '#FF5F57',
+    yellow: '#FFBD2E',
+    green: '#28CA42',
+    redHover: '#FF4A47',
+    yellowHover: '#FFB01E',
+    greenHover: '#1FB832',
+  };
+
   return (
     <Paper
       elevation={0}
       sx={{
-        bgcolor: '#000000',
-        color: '#00ff00',
-        p: 3,
-        fontFamily: '"JetBrains Mono", monospace',
-        fontSize: '14px',
-        lineHeight: 1.4,
-        border: '1px solid #333333',
-        maxHeight: '400px',
-        overflow: 'auto',
+        bgcolor: colors.background,
+        color: colors.foreground,
+        border: `1px solid ${colors.border}`,
+        borderRadius: 3,
+        maxHeight: '500px',
+        overflow: 'hidden',
+        transition: 'all 0.15s ease',
+        boxShadow: isDark 
+          ? '0 12px 24px rgba(0, 0, 0, 0.4)' 
+          : '0 12px 24px rgba(0, 0, 0, 0.1)',
       }}
     >
+      {/* Terminal Header with Traffic Lights */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          px: 2,
+          py: 1,
+          bgcolor: isDark ? '#2A2C2E' : '#E8E8E8',
+          borderBottom: `1px solid ${colors.border}`,
+          borderTopLeftRadius: 12,
+          borderTopRightRadius: 12,
+          background: isDark 
+            ? 'linear-gradient(180deg, #2A2C2E 0%, #25272A 100%)'
+            : 'linear-gradient(180deg, #F0F0F0 0%, #E8E8E8 100%)',
+          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1)',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, ml: 1 }}>
+            {/* Close Button */}
+            <Box
+              onClick={onClose}
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.red,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.1s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.redHover,
+                  color: '#8B1F1F',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+              }}
+            >
+              ×
+            </Box>
+            
+            {/* Minimize Button */}
+            <Box
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.yellow,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.1s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.yellowHover,
+                  color: '#8B6F00',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+              }}
+            >
+              −
+            </Box>
+            
+            {/* Maximize Button */}
+            <Box
+              sx={{
+                width: 13,
+                height: 13,
+                borderRadius: '50%',
+                bgcolor: macOSColors.green,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '8px',
+                fontWeight: 'bold',
+                color: 'transparent',
+                position: 'relative',
+                transition: 'all 0.1s ease',
+                boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)`,
+                '&:hover': {
+                  bgcolor: macOSColors.greenHover,
+                  color: '#1B5E20',
+                  transform: 'scale(1.05)',
+                  boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 3px rgba(0, 0, 0, 0.3)`,
+                },
+              }}
+            >
+              ⬢
+            </Box>
+          </Box>
+          
+          <Typography variant="body2" sx={{ 
+            color: colors.foreground,
+            ml: 2,
+            fontFamily: '"JetBrains Mono", monospace',
+            fontSize: '12px',
+            fontWeight: 500,
+            textShadow: isDark 
+              ? '0 1px 0 rgba(255, 255, 255, 0.1)' 
+              : '0 1px 0 rgba(255, 255, 255, 0.8)',
+          }}>
+            sumanrajsharma — -zsh — 80×24
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Terminal Content */}
+      <Box
+        ref={terminalContentRef}
+        sx={{
+          p: 3,
+          fontFamily: '"JetBrains Mono", monospace',
+          fontSize: '14px',
+          lineHeight: 1.4,
+          maxHeight: '400px',
+          overflow: 'auto',
+          bgcolor: colors.background,
+          scrollBehavior: 'smooth',
+        }}
+      >
       <Box sx={{ mb: 2 }}>
         {output.map((line, index) => (
-          <Box key={index} sx={{ whiteSpace: 'pre-wrap', color: line.startsWith('$') ? '#00ff00' : '#ffffff' }}>
+          <Box key={index} sx={{ whiteSpace: 'pre-wrap', color: line.startsWith('$') ? colors.accent : colors.foreground }}>
             {line}
           </Box>
         ))}
       </Box>
       
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Box sx={{ color: '#00ff00', mr: 1 }}>$</Box>
+        <Box sx={{ color: colors.accent, mr: 1 }}>$</Box>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -222,7 +401,7 @@ Design Philosophy: Minimalist monochrome aesthetic.`,
           style={{
             background: 'transparent',
             border: 'none',
-            color: '#ffffff',
+            color: colors.foreground,
             outline: 'none',
             fontFamily: 'inherit',
             fontSize: 'inherit',
@@ -230,6 +409,7 @@ Design Philosophy: Minimalist monochrome aesthetic.`,
           }}
           placeholder="Type a command..."
         />
+      </Box>
       </Box>
     </Paper>
   );
@@ -242,6 +422,34 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
   });
 
   const [terminalVisible, setTerminalVisible] = useState(false);
+  
+  const theme = useTheme();
+  const { mode } = usePortfolioTheme();
+  const isDark = mode === 'dark';
+  
+  // Theme-aware colors
+  const terminalColors = {
+    light: {
+      background: '#F8F9FA',
+      foreground: '#2C3E50',
+      accent: '#27AE60',
+      secondary: '#34495E',
+      border: '#BDC3C7',
+      cardBg: '#FFFFFF',
+      pattern: '#E8E8E8',
+    },
+    dark: {
+      background: '#242A25',
+      foreground: '#A8E6CF',
+      accent: '#50fa7b',
+      secondary: '#f1fa8c',
+      border: '#373B41',
+      cardBg: '#2A2C2E',
+      pattern: '#333333',
+    },
+  };
+
+  const colors = terminalColors[isDark ? 'dark' : 'light'];
 
   const quickCommands = [
     { cmd: 'whoami', desc: 'About me' },
@@ -256,9 +464,10 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
       ref={ref}
       sx={{
         py: { xs: 6, md: 8 },
-        bgcolor: '#000000',
-        color: '#ffffff',
+        bgcolor: colors.background,
+        color: colors.foreground,
         position: 'relative',
+        transition: 'all 0.15s ease',
       }}
     >
       <Container maxWidth="lg">
@@ -272,7 +481,7 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
               variant="subtitle2"
               sx={{
                 mb: 2,
-                color: '#00ff00',
+                color: colors.accent,
                 fontWeight: 500,
                 fontFamily: 'monospace',
                 letterSpacing: '0.1em',
@@ -286,7 +495,7 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
               sx={{
                 mb: 3,
                 fontWeight: 600,
-                color: '#ffffff',
+                color: colors.foreground,
               }}
             >
               Developer Terminal
@@ -295,7 +504,7 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
             <Typography
               variant="body1"
               sx={{
-                color: '#cccccc',
+                color: colors.secondary,
                 maxWidth: '600px',
                 mx: 'auto',
                 mb: 4,
@@ -311,13 +520,15 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
               startIcon={<TerminalIcon />}
               onClick={() => setTerminalVisible(!terminalVisible)}
               sx={{
-                bgcolor: '#00ff00',
-                color: '#000000',
+                bgcolor: colors.accent,
+                color: isDark ? '#000000' : '#FFFFFF',
                 fontWeight: 600,
                 px: 4,
                 py: 1.5,
+                border: `2px solid ${colors.accent}`,
                 '&:hover': {
-                  bgcolor: '#00cc00',
+                  bgcolor: isDark ? '#45e66d' : '#219a52',
+                  boxShadow: `0 8px 25px ${colors.accent}25`,
                 },
               }}
             >
@@ -331,17 +542,23 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
               <Paper
                 key={cmd.cmd}
                 sx={{
-                  bgcolor: '#1a1a1a',
-                  color: '#ffffff',
+                  bgcolor: colors.cardBg,
+                  color: colors.foreground,
                   px: 2,
                   py: 1,
-                  border: '1px solid #333333',
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: 1,
                   fontFamily: 'monospace',
                   fontSize: '0.875rem',
+                  transition: 'all 0.15s ease',
+                  '&:hover': {
+                    borderColor: colors.accent,
+                    boxShadow: `0 4px 12px ${colors.accent}15`,
+                  },
                 }}
               >
-                <Box sx={{ color: '#00ff00' }}>$ {cmd.cmd}</Box>
-                <Box sx={{ color: '#cccccc', fontSize: '0.75rem' }}>{cmd.desc}</Box>
+                <Box sx={{ color: colors.accent }}>$ {cmd.cmd}</Box>
+                <Box sx={{ color: colors.secondary, fontSize: '0.75rem' }}>{cmd.desc}</Box>
               </Paper>
             ))}
           </Box>
@@ -357,6 +574,7 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
                 profile={profile}
                 projects={projects}
                 skills={skills}
+                onClose={() => setTerminalVisible(false)}
               />
             </motion.div>
           )}
@@ -366,7 +584,7 @@ export function ClientTerminal({ profile, projects, skills }: ClientTerminalProp
             <Typography
               variant="body2"
               sx={{
-                color: '#888888',
+                color: colors.secondary,
                 fontFamily: 'monospace',
               }}
             >
