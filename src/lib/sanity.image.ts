@@ -6,3 +6,6 @@ const builder = imageUrlBuilder(client);
 export function urlFor(source: any) {
   return builder.image(source);
 }
+
+// Export as urlForImage for backward compatibility
+export const urlForImage = urlFor;
