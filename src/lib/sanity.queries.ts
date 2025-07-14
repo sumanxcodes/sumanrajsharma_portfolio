@@ -151,6 +151,23 @@ export const blogPostBySlugQuery = groq`
   }
 `;
 
+// Related blog posts query
+export const relatedBlogPostsQuery = groq`
+  *[_type == "blogPost" && defined(tags) && count(tags[@ in $tags]) > 0 && slug.current != $slug] | order(publishedAt desc) [0..2] {
+    _id,
+    title,
+    slug,
+    publishedAt,
+    coverImage,
+    metaDescription,
+    tags,
+    author-> {
+      name,
+      avatar
+    }
+  }
+`;
+
 // All authors query
 export const authorsQuery = groq`
   *[_type == "author"] {

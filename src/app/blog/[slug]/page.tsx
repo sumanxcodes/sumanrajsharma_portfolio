@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Typography, Box, Chip, Avatar, Stack, Button, Divider } from '@mui/material';
+import { Typography, Box, Chip, Avatar, Stack, Button, Divider, IconButton } from '@mui/material';
 import { Layout } from '@/components/layout/Layout';
 import { Container } from '@/components/ui/Container';
 import { Section } from '@/components/ui/Section';
@@ -10,8 +10,10 @@ import { urlForImage } from '@/lib/sanity.image';
 import { PortableText } from '@portabletext/react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowBack } from '@mui/icons-material';
+import { ArrowBack, ContentCopy } from '@mui/icons-material';
 import { BlogPost } from '@/types/sanity';
+import { CodeBlock } from '@/components/blog/CodeBlock';
+import { RelatedPosts } from '@/components/blog/RelatedPosts';
 
 interface BlogPostPageProps {
   params: {
@@ -25,6 +27,15 @@ async function getBlogPost(slug: string): Promise<BlogPost | null> {
   } catch (error) {
     console.error('Error fetching blog post:', error);
     return null;
+  }
+}
+
+async function getAllBlogPosts(): Promise<BlogPost[]> {
+  try {
+    return await client.fetch(blogPostsQuery);
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    return [];
   }
 }
 
@@ -105,6 +116,13 @@ const portableTextComponents = {
         </Box>
       );
     },
+    code: ({ value }: any) => (
+      <CodeBlock
+        code={value.code}
+        language={value.language || 'javascript'}
+        filename={value.filename}
+      />
+    ),
   },
   block: {
     h1: ({ children }: any) => (
@@ -201,6 +219,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound();
   }
 
+  // Get all posts for related posts functionality
+  const allPosts = await getAllBlogPosts();
   const imageUrl = post.coverImage ? urlForImage(post.coverImage)?.url() : null;
 
   return (
@@ -300,6 +320,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               )}
             </Box>
           </article>
+
+          {/* Related Posts */}
+          <RelatedPosts currentPost={post} allPosts={allPosts} />
 
           <Divider sx={{ my: 4 }} />
           

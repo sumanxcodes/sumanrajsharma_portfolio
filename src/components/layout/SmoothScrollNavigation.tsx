@@ -21,11 +21,14 @@ import Link from 'next/link';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const navigationItems = [
-  { label: 'Home', href: '#hero' },
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Home', href: '/', section: 'hero' },
+  { label: 'About', href: '/about', section: 'about' },
+  { label: 'Experience', href: '/experience' },
+  { label: 'Education', href: '/education' },
+  { label: 'Skills', href: '/skills', section: 'skills' },
+  { label: 'Projects', href: '/projects', section: 'projects' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Contact', href: '/contact', section: 'contact' },
 ];
 
 export function SmoothScrollNavigation() {
@@ -41,7 +44,7 @@ export function SmoothScrollNavigation() {
       setScrolled(scrollPosition > 50);
 
       // Determine active section
-      const sections = navigationItems.map(item => item.href.slice(1)); // Remove #
+      const sections = navigationItems.filter(item => item.section).map(item => item.section!);
       let current = 'hero';
 
       for (const section of sections) {
@@ -60,14 +63,19 @@ export function SmoothScrollNavigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSmoothScroll = (href: string) => {
-    const targetId = href.slice(1); // Remove #
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
+  const handleNavigation = (item: { label: string; href: string; section?: string }) => {
+    if (item.section) {
+      // Smooth scroll to section on current page
+      const element = document.getElementById(item.section);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    } else {
+      // Navigate to different page
+      window.location.href = item.href;
     }
     setMobileOpen(false);
   };
@@ -93,7 +101,7 @@ export function SmoothScrollNavigation() {
         {navigationItems.map((item) => (
           <ListItem
             key={item.label}
-            onClick={() => handleSmoothScroll(item.href)}
+            onClick={() => handleNavigation(item)}
             sx={{
               cursor: 'pointer',
               borderRadius: 0,
@@ -107,8 +115,8 @@ export function SmoothScrollNavigation() {
               primary={item.label}
               sx={{
                 '& .MuiListItemText-primary': {
-                  fontWeight: activeSection === item.href.slice(1) ? 600 : 400,
-                  color: activeSection === item.href.slice(1) ? 'primary.main' : 'text.primary',
+                  fontWeight: activeSection === item.section ? 600 : 400,
+                  color: activeSection === item.section ? 'primary.main' : 'text.primary',
                 },
               }}
             />
@@ -165,10 +173,10 @@ export function SmoothScrollNavigation() {
                 {navigationItems.map((item, index) => (
                   <Button
                     key={item.label}
-                    onClick={() => handleSmoothScroll(item.href)}
+                    onClick={() => handleNavigation(item)}
                     sx={{
-                      color: activeSection === item.href.slice(1) ? 'primary.main' : 'text.primary',
-                      fontWeight: activeSection === item.href.slice(1) ? 600 : 400,
+                      color: activeSection === item.section ? 'primary.main' : 'text.primary',
+                      fontWeight: activeSection === item.section ? 600 : 400,
                       px: 2,
                       py: 1,
                       fontSize: '0.875rem',
@@ -184,7 +192,7 @@ export function SmoothScrollNavigation() {
                         bottom: 0,
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        width: activeSection === item.href.slice(1) ? '80%' : '0%',
+                        width: activeSection === item.section ? '80%' : '0%',
                         height: '2px',
                         bgcolor: 'primary.main',
                         transition: 'width 0.3s ease',
