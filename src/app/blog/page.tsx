@@ -11,6 +11,9 @@ import { BlogFilters } from '@/components/blog/BlogFilters';
 import { BlogSearch } from '@/components/blog/BlogSearch';
 import { BlogPagination } from '@/components/blog/BlogPagination';
 import { BlogCard } from '@/components/blog/BlogCard';
+import { ParallaxContainer, ParallaxSection } from '@/components/ui/ParallaxSection';
+import { ParallaxBackground, FloatingElement } from '@/components/ui/ParallaxBackground';
+import { AnimatedSection } from '@/components/ui/AnimatedSection';
 
 export const metadata: Metadata = {
   title: 'Blog | Suman Raj Sharma',
@@ -89,83 +92,165 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   return (
     <Layout>
-      <Section>
-        <Container>
-          <Box sx={{ mb: 6 }}>
-            <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 2 }}>
-              <Typography
-                variant="h2"
-                component="h1"
-                sx={{
-                  fontSize: { xs: '2rem', md: '2.5rem' },
-                  fontWeight: 600,
-                  textAlign: 'center',
-                }}
-              >
-                Blog
-              </Typography>
-              <IconButton
-                component="a"
-                href="/rss.xml"
-                target="_blank"
-                rel="noopener noreferrer"
-                color="primary"
-                sx={{ '&:hover': { color: 'primary.dark' } }}
-                aria-label="RSS Feed"
-              >
-                <RssFeed />
-              </IconButton>
-            </Stack>
-            <Typography
-              variant="h6"
-              color="text.secondary"
-              sx={{
-                textAlign: 'center',
-                maxWidth: '600px',
-                mx: 'auto',
-                lineHeight: 1.6,
-                mb: 4,
-              }}
-            >
-              Sharing insights, tutorials, and thoughts on software development,
-              technology trends, and my journey as a developer.
-            </Typography>
-          </Box>
+      <ParallaxContainer height="auto" overflow="visible">
+        {/* Parallax Background Elements */}
+        <ParallaxBackground 
+          speed={0.2} 
+          direction="up" 
+          gradient="radial" 
+          opacity={0.4}
+          sx={{ 
+            top: '10%',
+            height: '80%',
+          }}
+        />
+        <ParallaxBackground 
+          speed={0.1} 
+          direction="down" 
+          gradient="linear" 
+          opacity={0.2}
+          sx={{ 
+            top: '40%',
+            height: '60%',
+          }}
+        />
 
-          {/* Search and Filters */}
-          <BlogSearch />
-          <BlogFilters allTags={allTags} selectedTag={searchParams.tag} />
+        {/* Floating Decorative Elements */}
+        <FloatingElement 
+          speed={0.3} 
+          amplitude={15}
+          sx={{
+            position: 'absolute',
+            top: '20%',
+            right: '10%',
+            width: 60,
+            height: 60,
+            borderRadius: '50%',
+            backgroundColor: 'primary.main',
+            opacity: 0.1,
+            zIndex: 0,
+          }}
+        />
+        <FloatingElement 
+          speed={0.4} 
+          amplitude={25}
+          delay={0.2}
+          sx={{
+            position: 'absolute',
+            top: '60%',
+            left: '5%',
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            backgroundColor: 'secondary.main',
+            opacity: 0.15,
+            zIndex: 0,
+          }}
+        />
 
-          {paginatedPosts.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 8 }}>
-              <Typography variant="h6" color="text.secondary">
-                {allBlogPosts.length === 0 
-                  ? 'No blog posts found. Add some blog posts in your Sanity CMS.'
-                  : `No blog posts found matching your ${searchParams.search ? 'search' : 'filters'}.`
-                }
-              </Typography>
-            </Box>
-          ) : (
-            <>
-              <Grid container spacing={4}>
-                {paginatedPosts.map((post) => (
-                  <Grid item xs={12} md={6} lg={4} key={post._id}>
-                    <BlogCard post={post} />
-                  </Grid>
-                ))}
-              </Grid>
-              
-              {/* Pagination */}
-              <BlogPagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                totalPosts={totalPosts}
-                postsPerPage={postsPerPage}
-              />
-            </>
-          )}
-        </Container>
-      </Section>
+        <Section sx={{ position: 'relative', zIndex: 1 }}>
+          <Container>
+            {/* Header Section with Parallax */}
+            <ParallaxSection speed={0.1} sx={{ mb: 6 }}>
+              <AnimatedSection animationVariant="fadeInUp" delay={0.2}>
+                <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 2 }}>
+                  <Typography
+                    variant="h2"
+                    component="h1"
+                    sx={{
+                      fontSize: { xs: '2rem', md: '2.5rem' },
+                      fontWeight: 600,
+                      textAlign: 'center',
+                    }}
+                  >
+                    Blog
+                  </Typography>
+                  <IconButton
+                    component="a"
+                    href="/rss.xml"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    color="primary"
+                    sx={{ '&:hover': { color: 'primary.dark' } }}
+                    aria-label="RSS Feed"
+                  >
+                    <RssFeed />
+                  </IconButton>
+                </Stack>
+                <Typography
+                  variant="h6"
+                  color="text.secondary"
+                  sx={{
+                    textAlign: 'center',
+                    maxWidth: '600px',
+                    mx: 'auto',
+                    lineHeight: 1.6,
+                    mb: 4,
+                  }}
+                >
+                  Sharing insights, tutorials, and thoughts on software development,
+                  technology trends, and my journey as a developer.
+                </Typography>
+              </AnimatedSection>
+            </ParallaxSection>
+
+            {/* Search and Filters with Animation */}
+            <AnimatedSection animationVariant="fadeInUp" delay={0.4}>
+              <BlogSearch />
+              <BlogFilters allTags={allTags} selectedTag={searchParams.tag} />
+            </AnimatedSection>
+
+            {/* Blog Posts Grid with Parallax */}
+            {paginatedPosts.length === 0 ? (
+              <AnimatedSection animationVariant="fadeIn" delay={0.6}>
+                <Box sx={{ textAlign: 'center', py: 8 }}>
+                  <Typography variant="h6" color="text.secondary">
+                    {allBlogPosts.length === 0 
+                      ? 'No blog posts found. Add some blog posts in your Sanity CMS.'
+                      : `No blog posts found matching your ${searchParams.search ? 'search' : 'filters'}.`
+                    }
+                  </Typography>
+                </Box>
+              </AnimatedSection>
+            ) : (
+              <>
+                <ParallaxSection speed={0.05}>
+                  <AnimatedSection animationVariant="staggerChildren" delay={0.6}>
+                    <Grid container spacing={4}>
+                      {paginatedPosts.map((post, index) => (
+                        <Grid item xs={12} md={6} lg={4} key={post._id}>
+                          <ParallaxSection 
+                            speed={0.02 * (index % 3 + 1)} 
+                            sx={{
+                              height: '100%',
+                              transition: 'transform 0.3s ease-out',
+                              '&:hover': {
+                                transform: 'translateY(-8px)',
+                              }
+                            }}
+                          >
+                            <BlogCard post={post} />
+                          </ParallaxSection>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </AnimatedSection>
+                </ParallaxSection>
+                
+                {/* Pagination with Animation */}
+                <AnimatedSection animationVariant="fadeInUp" delay={0.8}>
+                  <BlogPagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalPosts={totalPosts}
+                    postsPerPage={postsPerPage}
+                  />
+                </AnimatedSection>
+              </>
+            )}
+          </Container>
+        </Section>
+      </ParallaxContainer>
     </Layout>
   );
 }

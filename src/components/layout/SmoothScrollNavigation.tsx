@@ -23,11 +23,11 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 const navigationItems = [
   { label: 'Home', href: '/', section: 'hero' },
   { label: 'About', href: '/about', section: 'about' },
-  { label: 'Experience', href: '/experience' },
-  { label: 'Education', href: '/education' },
+  { label: 'Experience', href: '/experience', section: 'experience' },
+  { label: 'Education', href: '/education', section: 'education' },
   { label: 'Skills', href: '/skills', section: 'skills' },
   { label: 'Projects', href: '/projects', section: 'projects' },
-  { label: 'Blog', href: '/blog' },
+  { label: 'Blog', href: '/blog', section: 'blog' },
   { label: 'Contact', href: '/contact', section: 'contact' },
 ];
 

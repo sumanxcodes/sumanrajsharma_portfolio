@@ -3,14 +3,22 @@ import { Box } from '@mui/material';
 import { SmoothScrollNavigation } from '@/components/layout/SmoothScrollNavigation';
 import { HeroTerminalSection } from '@/components/sections/HeroTerminalSection';
 import { AboutSection } from '@/components/sections/AboutSection';
+import { ExperienceSection } from '@/components/sections/ExperienceSection';
+import { EducationSection } from '@/components/sections/EducationSection';
 import { SkillsSection } from '@/components/sections/SkillsSection';
 import { ProjectsSection } from '@/components/sections/ProjectsSection';
+import { BlogSection } from '@/components/sections/BlogSection';
 import { ContactSection } from '@/components/sections/ContactSection';
-// import { ExperienceSection } from '@/components/sections/ExperienceSection';
-// import { BlogSection } from '@/components/sections/BlogSection';
 import { client } from '@/lib/sanity.client';
-import { profileQuery, projectsQuery, skillsQuery } from '@/lib/sanity.queries';
-import { Profile, Project, Skill } from '@/types/sanity';
+import { 
+  profileQuery, 
+  projectsQuery, 
+  skillsQuery, 
+  experienceQuery, 
+  educationQuery, 
+  blogPostsQuery 
+} from '@/lib/sanity.queries';
+import { Profile, Project, Skill, Experience, Education, BlogPost } from '@/types/sanity';
 
 export const metadata: Metadata = {
   title: 'Suman Raj Sharma - Full-Stack Developer & Creative Problem Solver',
@@ -33,16 +41,22 @@ export const metadata: Metadata = {
 
 async function getPortfolioData() {
   try {
-    const [profile, projects, skills] = await Promise.all([
+    const [profile, projects, skills, experience, education, blogPosts] = await Promise.all([
       client.fetch(profileQuery),
       client.fetch(projectsQuery),
       client.fetch(skillsQuery),
+      client.fetch(experienceQuery),
+      client.fetch(educationQuery),
+      client.fetch(blogPostsQuery),
     ]);
 
     return {
       profile: profile as Profile | null,
       projects: projects as Project[],
       skills: skills as Skill[],
+      experience: experience as Experience[],
+      education: education as Education[],
+      blogPosts: blogPosts as BlogPost[],
     };
   } catch (error) {
     console.error('Error fetching portfolio data:', error);
@@ -50,12 +64,15 @@ async function getPortfolioData() {
       profile: null,
       projects: [],
       skills: [],
+      experience: [],
+      education: [],
+      blogPosts: [],
     };
   }
 }
 
 export default async function HomePage() {
-  const { profile, projects, skills } = await getPortfolioData();
+  const { profile, projects, skills, experience, education, blogPosts } = await getPortfolioData();
 
   return (
     <Box sx={{ bgcolor: 'background.default' }}>
@@ -64,14 +81,12 @@ export default async function HomePage() {
       <Box component="main">
         <HeroTerminalSection profile={profile} projects={projects} skills={skills} />
         <AboutSection profile={profile} />
+        <ExperienceSection experience={experience} />
+        <EducationSection education={education} />
         <SkillsSection skills={skills} />
         <ProjectsSection projects={projects} />
+        <BlogSection blogPosts={blogPosts} />
         <ContactSection />
-        {/* 
-        TODO: Add these sections as we implement them
-        <ExperienceSection />
-        <BlogSection />
-        */}
       </Box>
     </Box>
   );
